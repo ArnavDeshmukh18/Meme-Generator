@@ -4,12 +4,36 @@ function Content() {
   const [meme, setMeme] = React.useState({
     topText: "",
     bottomText: "",
-    randomImg: "",
+    randomImg: "https://i.imgflip.com/1bgw.jpg",
   });
+
+  const [allMemes, setMemes] = React.useState([]);
+
   function handleChange(event) {
     const { name, value } = event.target;
     setMeme((prevMeme) => ({ ...prevMeme, [name]: value }));
     console.log(event.target.value);
+  }
+
+  React.useEffect(() => {
+    async function getMemes() {
+      const res = await fetch("https://api.imgflip.com/get_memes");
+      const data = await res.json();
+      setMemes(data.data.memes);
+      console.log(data);
+    }
+    getMemes();
+  }, []);
+
+  function getMemeImage() {
+    const randomNumber = Math.floor(Math.random() * allMemes.length);
+    const url = allMemes[randomNumber].url;
+    console.log(url);
+    setMeme((prevMeme) => ({
+      ...prevMeme,
+      randomImg: url,
+    }));
+    console.log(meme.randomImg);
   }
 
   return (
@@ -30,7 +54,15 @@ function Content() {
         value={meme.bottomText}
         onChange={handleChange}
       />
-      <button className="form-button" >Get New Meme Image</button>
+      <button className="form-button" onClick={getMemeImage}>
+        Get New Meme Image
+      </button>
+
+      <div className="meme">
+        <img src={meme.randomImg} className="meme--image" />
+        <h2 className="meme--text top">{meme.topText}</h2>
+        <h2 className="meme--text bottom">{meme.bottomText}</h2>
+      </div>
     </div>
   );
 }
